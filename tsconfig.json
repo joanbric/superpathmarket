@@ -23,12 +23,16 @@
         "name": "next"
       }
     ],
+    "baseUrl": "./",
     "paths": {
       "@/*": [
         "./app/*"
       ],
       "@components/*": [
         "./app/components/*"
+      ],
+      "@libs/*": [
+        "./app/libs/*"
       ]
     }
   },

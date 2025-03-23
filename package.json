@@ -9,14 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "canvas": "2.11.2",
     "fabric": "6.6.1",
     "konva": "9.3.19",
     "next": "15.2.1",
     "pathfinding": "0.4.18",
+    "polotno": "2.21.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-konva": "19.0.3"
+    "react-konva": "19.0.3",
+    "tailwind-merge": "3.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3",
@@ -30,13 +31,9 @@
     "eslint-config-next": "15.2.1",
     "eslint-plugin-react": "7.37.4",
     "globals": "16.0.0",
+    "prettier-plugin-sort-class-names": "3.0.1",
     "tailwindcss": "4",
     "typescript": "5",
     "typescript-eslint": "8.26.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "canvas"
-    ]
   }
 }

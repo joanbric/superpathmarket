@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ReactNode } from 'react'
-
+import Header from '@components/Header'
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin']
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     'Shop smarter & save time! Our app maps your supermarket list into the fastest route, guiding you straight to each item. Never wander aisles again—check off your list in record time!'
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: ReactNode
@@ -31,6 +31,7 @@ export default function RootLayout({
         style={{}}
         draggable={false}
       >
+        <Header />
         {children}
       </body>
     </html>

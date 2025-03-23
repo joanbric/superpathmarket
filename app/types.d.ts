@@ -1,5 +1,7 @@
 export interface TPointerEvent extends MouseEvent {
-    buttons: number
-    offsetX: number
-    offsetY: number
+  buttons: number
+  offsetX: number
+  offsetY: number
 }
+
+export type Tools = typeof Tools

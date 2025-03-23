@@ -1,0 +1,13 @@
+{
+  "plugins": ["prettier-plugin-sort-class-names"],
+  "sortClassNames": true,
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "printWidth": 140,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "singleAttributePerLine": true
+}
