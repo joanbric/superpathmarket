@@ -8,6 +8,7 @@ import Konva from 'konva'
 import Drawer from '@components/Drawer'
 import { GRID_SIZE } from '@libs/constants'
 import { AStarFinder, Grid } from 'pathfinding'
+import { useDebouncedCallback } from 'use-debounce'
 
 type Props = {
   sketchID: string
@@ -189,6 +190,46 @@ export default function Canvas({
 
   const { horizontalLines, vertialLines } = useDrawGrid(canvasSize, GRID_SIZE, scale)
 
+  const distanceDebounced = useDebouncedCallback((nodeId: string) => {
+    const nodeMoved = children.find(child => child.id === nodeId)
+
+    if (!nodeMoved) return
+    if (nodeMoved.name !== 'circle' && nodeMoved.name !== 'star') return
+
+    const distances = children
+      .filter(child => (child.name === 'circle' || child.name === 'star') && child.id !== nodeId)
+      .map(target => {
+        const aPos = {
+          x: nodeMoved.x as number,
+          y: nodeMoved.y as number
+        }
+
+        const bPos = {
+          x: target.x as number,
+          y: target.y as number
+        }
+
+        const path = getPath({ aPos, bPos })
+
+        return { targetId: target.id, distance: path?.length || -1 }
+      })
+    setChildren(
+      children.map(child => {
+        if (child.id === nodeId) {
+          return { ...child, distances }
+        } else {
+          return {
+            ...child,
+            distances:
+              child.distances?.map((d: { targetId: string; distance: number }) =>
+                d.targetId === nodeId ? { ...d, distance: distances.find(d => d.targetId === child.id)?.distance || -1 } : d
+              ) || []
+          }
+        }
+      })
+    )
+  }, 1000)
+
   const updateNode = ({ nodeId, newNodeConfig }: { nodeId: string; newNodeConfig: Konva.NodeConfig }) => {
     setChildren(
       children.map(child => {
@@ -198,9 +239,11 @@ export default function Canvas({
         return child
       })
     )
+    distanceDebounced(nodeId)
   }
 
-  function drawPath() {
+  function getPath(pos?: { aPos: { x: number; y: number }; bPos: { x: number; y: number } } | null): number[][] {
+    // TODO: I have to calculate the canvas size in base of the children
     // const rows = Math.round(canvasSize.height / GRID_SIZE)
     // const cols = Math.round(canvasSize.width / GRID_SIZE)
     const rows = Math.round(3000 / GRID_SIZE)
@@ -208,22 +251,18 @@ export default function Canvas({
 
     const matrixGrid = Array.from({ length: rows }, () => Array(cols).fill(0))
 
-    if (!Array.isArray(children) || children.length === 0) return
+    if (!Array.isArray(children) || children.length === 0) return [[]]
 
     children.forEach(child => {
       if (child.name === 'rect') {
         const { x, y, width, height } = child
-        console.group('Rect')
-        console.log(x, y, width, height)
         if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(width) || !Number.isFinite(height)) return
 
-        const startY = Math.round(y as number / GRID_SIZE)
-        const endY = Math.min(startY + Math.round(height as number / GRID_SIZE), rows)
-        const startX = Math.round(x as number / GRID_SIZE)
-        const endX = Math.min(startX + Math.round(width as number / GRID_SIZE), cols)
+        const startY = Math.round((y as number) / GRID_SIZE)
+        const endY = Math.min(startY + Math.round((height as number) / GRID_SIZE), rows)
+        const startX = Math.round((x as number) / GRID_SIZE)
+        const endX = Math.min(startX + Math.round((width as number) / GRID_SIZE), cols)
 
-        console.log(startY, endY, startX, endX)
-        console.groupEnd()
         for (let i = startY; i < endY; i++) {
           matrixGrid[i] = matrixGrid[i].fill(1, startX, endX)
         }
@@ -232,30 +271,77 @@ export default function Canvas({
 
     const grid = new Grid(matrixGrid)
     const finder = new AStarFinder()
-    const start = children.find(child => child.name === 'star')
-    const goal = children.find(child => child.name === 'circle')
+
+    const start = pos ? pos.aPos : children.find(child => child.name === 'star')
+    const goal = pos ? pos.bPos : children.find(child => child.name === 'circle')
 
     if (!start || !goal || !start.x || !start.y || !goal.x || !goal.y) {
-      console.error('Start or goal position not found')
-      return
+      return [[]]
     }
 
-    try {
-      const path = finder.findPath(
-        Math.round(start.x / GRID_SIZE),
-        Math.round(start.y / GRID_SIZE),
-        Math.round(goal.x / GRID_SIZE),
-        Math.round(goal.y / GRID_SIZE),
-        grid
-      )
-      if (path && path.length > 0) {
-        setPathToTarget([...path])
-        console.log('Path found:', path)
-      } else {
-        console.log('No path found')
+    const path = finder.findPath(
+      Math.round(start.x / GRID_SIZE),
+      Math.round(start.y / GRID_SIZE),
+      Math.round(goal.x / GRID_SIZE),
+      Math.round(goal.y / GRID_SIZE),
+      grid
+    )
+    return path
+  }
+
+  function drawPath(pos?: { aPos: { x: number; y: number }; bPos: { x: number; y: number } } | null) {
+    let next = children.find(child => child.name === 'star')?.id
+    const order = []
+    let remainingNodes = [...children.filter(child => child.name === 'circle' || child.name === 'star')] // Copy of original data to modify
+
+    while (remainingNodes.length > 0) {
+      const nextItem = remainingNodes.find(item => item?.id === next)
+
+      if (!nextItem) break // Exit if node not found
+
+      order.push(nextItem)
+
+      // Remove the current node from remainingNodes
+      remainingNodes = remainingNodes.filter(item => item.id !== next)
+
+      // Find the closest connected node that still exists in remainingNodes
+      let minDistance = Infinity // Initialize to a very large number
+      let nextNode = null
+
+      nextItem.distances.forEach((item: { targetId: string; distance: number }) => {
+        // Only consider nodes that are still in remainingNodes
+        const targetExists = remainingNodes.some(node => node.id === item.targetId)
+
+        if (targetExists && item.distance < minDistance) {
+          minDistance = item.distance
+          nextNode = item.targetId
+        }
+      })
+
+      if (!nextNode) break // No valid next node found
+      next = nextNode
+    }
+
+
+    let nodeA = 0
+    let nodeB = 1
+    const path = []
+    while(nodeB < order.length){
+      const aPos = {
+        x: order[nodeA].x as number,
+        y: order[nodeA].y as number
       }
-    } catch (error) {
-      console.error('Error finding path:', error)
+      const bPos = {
+        x: order[nodeB].x as number,
+        y: order[nodeB].y as number
+      }
+      path.push(...getPath({ aPos, bPos }))
+      nodeA++
+      nodeB++
+    }
+
+    if (path && path.length > 0) {
+      setPathToTarget([...path])
     }
   }
 
