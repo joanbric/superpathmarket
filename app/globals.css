@@ -1,8 +1,18 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@plugin 'flowbite-react/plugin/tailwindcss';
+@source '../.flowbite-react/class-list.json';
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #171717;
+    --foreground: #ffffff;
+  }
 }
 
 @theme inline {
@@ -10,30 +20,23 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --grid-min-cols-1: 50px;
+  --grid-min-cols-2: 100px;
+  --grid-min-cols-3: 150px;
+  --grid-min-cols-4: 200px;
+  --grid-min-cols-5: 250px;
+  --grid-min-cols-6: 300px;
+  --grid-min-cols-7: 350px;
+  --grid-min-cols-8: 400px;
+  --grid-min-cols-9: 450px;
+  --grid-min-cols-10: 500px;
+  --grid-min-cols-11: 550px;
+  --grid-min-cols-12: 600px;
 }
+@utility grid-min-cols-* {
+  grid-template-columns: repeat(auto-fit, minmax(--value(--grid-min-cols-*), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(--value([integer]), 1fr));
+} 
 
 /* Dark theme variables */
-.dark-theme {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
-/* Light theme variables */
-.light-theme {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-/* System preference based theme (fallback) */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light-theme):not(.dark-theme) {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+@custom-variant dark (&:where(.dark, .dark *));
