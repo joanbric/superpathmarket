@@ -289,7 +289,7 @@ export default function Canvas({
     return path
   }
 
-  function drawPath(pos?: { aPos: { x: number; y: number }; bPos: { x: number; y: number } } | null) {
+  function drawPath() {
     let next = children.find(child => child.name === 'star')?.id
     const order = []
     let remainingNodes = [...children.filter(child => child.name === 'circle' || child.name === 'star')] // Copy of original data to modify
