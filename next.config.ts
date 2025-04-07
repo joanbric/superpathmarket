@@ -1,8 +1,8 @@
 import type { NextConfig } from 'next'
+import withFlowbiteReact from 'flowbite-react/plugin/nextjs'
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactStrictMode: true,
   compiler: {
     // This enables the new JSX transform from React 17
     reactRemoveProperties: process.env.NODE_ENV === 'production',
@@ -21,4 +21,4 @@ const nextConfig: NextConfig = {
   }
 }
 
-export default nextConfig
+export default withFlowbiteReact(nextConfig)
