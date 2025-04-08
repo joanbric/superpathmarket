@@ -1,6 +1,6 @@
 'use client'
 import { Button, FileInput, Label, ModalFooter, TextInput } from 'flowbite-react'
-import ModalComponent from '../Modal'
+import ModalComponent from '../../components/Modal'
 import { createProduct } from '@/actions'
 import { useState } from 'react'
 import { PlusIcon, SaveIcon, XCircle } from 'lucide-react'
