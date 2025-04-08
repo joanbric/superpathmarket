@@ -1,5 +1,5 @@
 import ImageWithFallback from '@/components/ImageWithFallback'
-import EditProductModal from '@/components/lib/EditProductModal'
+import EditProductModal from './EditProductModal'
 import { Card, ListGroup, ListItem } from 'flowbite-react'
 
 type Product = {
@@ -12,8 +12,10 @@ type Product = {
 
 const assetsURL = 'https://assets.joanbric.dev'
 
+const API_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000/api'
+
 export default async function ProductsPage() {
-  const products = await fetch('http://localhost:3000/api/products')
+  const products = await fetch(`${API_URL}/products`)
   const productsData = (await products.json()) as Product[]
 
   return (
