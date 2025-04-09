@@ -10,7 +10,7 @@ import {
   ThemeProvider,
   createTheme
 } from 'flowbite-react'
-import { ArrowLeft, Menu, ChartPie, ListTodo, Map, Citrus, MenuIcon } from 'lucide-react'
+import { ArrowLeft, Menu, ChartPie, ListTodo, Map, Citrus, MenuIcon, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -43,6 +43,7 @@ enum Sections {
   Dashboard = 'Dashboard',
   ShoppingLists = 'Shopping Lists',
   SketchesStore = 'Sketches store',
+  Stores = 'Stores',
   Products = 'Products'
 }
 
@@ -58,6 +59,8 @@ export default function AppMenu() {
       return Sections.SketchesStore
     } else if (pathname === '/app/products') {
       return Sections.Products
+    }else if (pathname === '/app/stores'){
+      return Sections.Stores
     }
     return Sections.Dashboard
   })()
@@ -71,6 +74,15 @@ export default function AppMenu() {
     return section === currentSection ? 'dark:bg-cyan-700 bg-gray-300' : ''
   }
 
+
+
+  const sections = [
+    { name: Sections.Dashboard, href: '/app' , icon: ChartPie},
+    { name: Sections.ShoppingLists, href: '/app/shoppinglists' , icon: ListTodo},
+    { name: Sections.SketchesStore, href: '/app/sketches' , icon: Map},
+    { name: Sections.Stores, href: '/app/stores' , icon: Store},
+    { name: Sections.Products, href: '/app/products' , icon: Citrus}
+  ]
   return (
     <>
       <header className="dark:text-white flex justify-start  items-center my-4 relative">
@@ -94,45 +106,18 @@ export default function AppMenu() {
               >
                 <SidebarItems>
                   <SidebarItemGroup>
-                    <SidebarItem
-                      href="/app"
-                      icon={ChartPie}
-                      className={getSectionColor(Sections.Dashboard)}
-                      as={Link}
-                      onClick={closeSidebar}
-                    >
-                      Dashboard
-                    </SidebarItem>
-                    <SidebarItem
-                      href="/app/shoppinglists"
-                      icon={ListTodo}
-                      label="3"
-                      labelColor="dark"
-                      className={getSectionColor(Sections.ShoppingLists)}
-                      as={Link}
-                      onClick={closeSidebar}
-                    >
-                      Shopping Lists
-                    </SidebarItem>
-                    <SidebarItem
-                      href="/app/sketches"
-                      icon={Map}
-                      label="3"
-                      className={getSectionColor(Sections.SketchesStore)}
-                      as={Link}
-                      onClick={closeSidebar}
-                    >
-                      Sketches store
-                    </SidebarItem>
-                    <SidebarItem
-                      href="/app/products"
-                      icon={Citrus}
-                      className={getSectionColor(Sections.Products)}
-                      as={Link}
-                      onClick={closeSidebar}
-                    >
-                      Products
-                    </SidebarItem>
+                    {sections.map(section => (
+                      <SidebarItem
+                        key={section.name}
+                        href={section.href}
+                        icon={section.icon}
+                        className={getSectionColor(section.name)}
+                        as={Link}
+                        onClick={closeSidebar}
+                      >
+                        {section.name}
+                      </SidebarItem>
+                    ))}
                   </SidebarItemGroup>
                 </SidebarItems>
               </Sidebar>
