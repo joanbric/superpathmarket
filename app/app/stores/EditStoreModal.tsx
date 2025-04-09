@@ -23,9 +23,7 @@ export default function EditStoreModal({ operationType }: EditStoreModalProps) {
   }
 
   const handleSubmit = () => {
-    console.log('vamos a ver')
     router.replace('/app/stores')
-    console.log('pura paja')
     closeModal()
   }
 
