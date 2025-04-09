@@ -21,3 +21,16 @@ export async function createProduct(form: FormData) {
     console.log(error)
   }
 }
+
+
+export async function createStore(form: FormData) {
+  console.log('El formulario del action', form)
+  const name = form.get('name') as string
+  const address = form.get('address') as string
+
+  try {
+    await turso.execute('INSERT INTO stores (name, address) VALUES (?, ?)', [name, address])
+  } catch (error) {
+    console.log(error)
+  }
+}
