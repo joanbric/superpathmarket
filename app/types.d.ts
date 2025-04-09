@@ -5,3 +5,9 @@ export interface TPointerEvent extends MouseEvent {
 }
 
 export type Tools = typeof Tools
+
+export type Store = {
+  id: number
+  name: string
+  address: string
+}
