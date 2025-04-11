@@ -18,13 +18,24 @@ export default async function StoresPage() {
       <EditStoreModal operationType="create" />
 
       {storesData.length > 0 && (
-        <ListGroup className="gap-2 grid grid-min-cols-5 mt-10">
+        <ListGroup className="gap-2 grid grid-min-cols-8 w-full mt-10 p-1">
           {storesData.map(store => (
             <ListItem key={store.id}>
-              <Card className="md:max-w-xs">
-                <a href="#" className='w-full'>
-                  <h5 className="dark:text-white font-semibold text-gray-900 text-lg text-nowrap overflow-hidden overflow-ellipsis">{store.name}</h5>
-                  <small className="dark:text-white text-gray-900 w-full inline-block text-nowrap overflow-hidden overflow-ellipsis">{store.address}</small>
+              <Card
+                className="md:max-w-xs"
+                imgSrc="https://placehold.co/600x400/orange/white"
+                imgAlt="Store Image"
+              >
+                <a
+                  href={`/stores/${store.id}`}
+                  className="w-full"
+                >
+                  <h5 className="dark:text-white font-semibold overflow-ellipsis overflow-hidden text-gray-900 text-lg text-nowrap">
+                    {store.name}
+                  </h5>
+                  <small className="dark:text-white inline-block overflow-ellipsis overflow-hidden text-gray-900 text-nowrap w-full">
+                    {store.address}
+                  </small>
                 </a>
               </Card>
             </ListItem>

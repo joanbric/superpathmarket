@@ -10,7 +10,7 @@ import {
   ThemeProvider,
   createTheme
 } from 'flowbite-react'
-import { ArrowLeft, Menu, ChartPie, ListTodo, Map, Citrus, MenuIcon } from 'lucide-react'
+import { ArrowLeft, Menu, ChartPie, ListTodo, Citrus, MenuIcon, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -77,7 +77,7 @@ export default function AppMenu() {
   const sections = [
     { name: Sections.Dashboard, href: '/app', icon: ChartPie },
     { name: Sections.ShoppingLists, href: '/app/shoppinglists', icon: ListTodo },
-    { name: Sections.SketchesStore, href: '/app/sketches', icon: Map },
+    { name: Sections.Stores, href: '/app/stores', icon: Store },
     { name: Sections.Products, href: '/app/products', icon: Citrus }
   ]
   return (
