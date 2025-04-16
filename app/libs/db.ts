@@ -7,10 +7,13 @@ export const turso = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN!
 })
 
-if (connections.length === 0) {
+if (connections.length === 0)  await connect(process.env.MONGOOSE_URI!)
+
+if (connections[0].readyState !== 1) {
+  connections[0].close()
+  connections.pop()
   await connect(process.env.MONGOOSE_URI!)
 }
-
 const sketch = models.sketch || model('sketch', sketchSchema, 'sketches')
 
 export const mongo = {
