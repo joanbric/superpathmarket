@@ -1,16 +1,18 @@
 'use client'
-import { Button, Label, ModalFooter, TextInput } from 'flowbite-react'
+import { Button, ButtonProps, Label, ModalFooter, TextInput } from 'flowbite-react'
 import ModalComponent from '../../components/Modal'
 import { createStore } from '@/actions'
 import { useState } from 'react'
-import { PlusIcon, SaveIcon, XCircle } from 'lucide-react'
+import { EditIcon, PlusIcon, SaveIcon, XCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Store } from '@/types'
 
-type EditStoreModalProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type EditStoreModalProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonProps & {
   operationType: 'create' | 'edit'
+  store?: Store
 }
 
-export default function EditStoreModal({ operationType }: EditStoreModalProps) {
+export default function EditStoreModal({ operationType, store = { id: 0, name: '', address: '', sketch_id: null, img_url: null }, ...props }: EditStoreModalProps) {
   const [imagePreview, setImagePreview] = useState<string>('')
   const [showModal, setShowModal] = useState(false)
   const router = useRouter()
@@ -34,8 +36,14 @@ export default function EditStoreModal({ operationType }: EditStoreModalProps) {
           setShowModal(true)
         }}
         className="flex font-bold gap-2 items-center w-full max-w-[500px] mx-auto md:mr-10 md:w-auto"
+        {...props}
       >
-        <PlusIcon /> Create store
+        {operationType === 'create' ? (
+          <><PlusIcon /> Create store</>
+        ) : (
+          <><EditIcon /> Edit store</>
+        )}
+
       </Button>
       <ModalComponent
         show={showModal}
@@ -54,6 +62,7 @@ export default function EditStoreModal({ operationType }: EditStoreModalProps) {
             placeholder="Asda Boldon Supercentre"
             name="name"
             required
+            value={store.name}
           />
           <Label htmlFor="address">Address</Label>
           <TextInput
@@ -61,6 +70,7 @@ export default function EditStoreModal({ operationType }: EditStoreModalProps) {
             placeholder="North Rd, Boldon Colliery, Newcastle upon Tyne NE35 9AR"
             name="address"
             required
+            value={store.address}
           />
           <ModalFooter>
             <Button

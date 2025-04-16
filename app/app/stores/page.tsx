@@ -1,13 +1,9 @@
 import { Card, ListGroup, ListItem } from 'flowbite-react'
 import EditStoreModal from './EditStoreModal'
-
-const API_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : 'https://superpathmarket.com'
-
-interface Store {
-  id: number
-  name: string
-  address: string
-}
+import { Store } from '@/types'
+import { API_URL } from '@libs/constants'
+import Link from 'next/link'
+import { Expand } from 'lucide-react'
 
 export default async function StoresPage() {
   const stores = await fetch(`${API_URL}/stores`)
@@ -18,25 +14,22 @@ export default async function StoresPage() {
       <EditStoreModal operationType="create" />
 
       {storesData.length > 0 && (
-        <ListGroup className="gap-2 grid grid-min-cols-8 w-full mt-10 p-1">
+        <ListGroup className="gap-8  grid grid-min-cols-5 items-stretch justify-items-center mt-10 p-1">
           {storesData.map(store => (
-            <ListItem key={store.id}>
+            <ListItem key={store.id} className='w-full'>
               <Card
-                className="md:max-w-xs"
-                imgSrc="https://placehold.co/600x400/orange/white"
-                imgAlt="Store Image"
+                className="md:max-w-xs relative"
+                imgSrc={store.img_url || '/imgs/sketch-placeholder.webp'}
+                imgAlt={`${store.name} sketch`}
               >
-                <a
-                  href={`/stores/${store.id}`}
-                  className="w-full"
-                >
-                  <h5 className="dark:text-white font-semibold overflow-ellipsis overflow-hidden text-gray-900 text-lg text-nowrap">
-                    {store.name}
-                  </h5>
-                  <small className="dark:text-white inline-block overflow-ellipsis overflow-hidden text-gray-900 text-nowrap w-full">
-                    {store.address}
-                  </small>
-                </a>
+                <Link href={`/app/stores/${store.id}`} className="absolute top-3 right-3 dark:bg-cyan-700 bg-white border border-gray-400 text-gray-500 dark:text-white dark:stroke-white p-1 rounded"><Expand /></Link>
+                <h5 className="dark:text-white block max-w-full font-semibold overflow-ellipsis overflow-hidden text-gray-900 text-lg text-nowrap w-full">
+                  {store.name}
+                </h5>
+                <small className="dark:text-white block overflow-ellipsis overflow-hidden text-gray-900 text-nowrap w-full">
+                  {store.address}
+                </small>
+                <EditStoreModal operationType="edit" outline store={store} />
               </Card>
             </ListItem>
           ))}
