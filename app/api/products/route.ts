@@ -1,4 +1,4 @@
-import turso from '@/libs/db'
+import {turso} from '@/libs/db'
 export async function GET() {
   try {
     const result = await turso.execute('SELECT * FROM products')
