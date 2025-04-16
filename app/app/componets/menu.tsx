@@ -1,43 +1,9 @@
 'use client'
-import {
-  SidebarItemGroup,
-  SidebarItems,
-  SidebarItem,
-  Sidebar,
-  Drawer,
-  DrawerHeader,
-  DrawerItems,
-  ThemeProvider,
-  createTheme
-} from 'flowbite-react'
+import { SidebarItemGroup, SidebarItems, SidebarItem, Sidebar, Drawer, DrawerHeader, DrawerItems } from 'flowbite-react'
 import { ArrowLeft, Menu, ChartPie, ListTodo, Citrus, MenuIcon, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-
-const getTheme = (isSidebarOpen: boolean) => {
-  return createTheme({
-    drawer: {
-      root: {
-        base: '',
-        edge: 'left-10 absolute h-full py-2 flex overflow-hidden rounded-2xl'
-      },
-      header: {
-        collapsed: {
-          off: 'hidden',
-          on: 'hidden'
-        },
-        inner: {
-          closeButton: isSidebarOpen ? 'text-amber-700' : 'text-white bg-blue-900 top-1/2 -translate-y-1/2',
-          closeIcon: 'w-6 h-6'
-        }
-      },
-      items: {
-        base: `${isSidebarOpen ? 'block' : 'hidden'}`
-      }
-    }
-  })
-}
 
 enum Sections {
   Dashboard = 'Dashboard',
@@ -53,13 +19,13 @@ export default function AppMenu() {
   const currentSection = (() => {
     if (pathname === '/app') {
       return Sections.Dashboard
-    } else if (pathname === '/app/shoppinglists') {
+    } else if (pathname.includes('/app/shoppinglists')) {
       return Sections.ShoppingLists
-    } else if (pathname === '/app/sketches') {
+    } else if (pathname.includes('/app/sketches')) {
       return Sections.SketchesStore
-    } else if (pathname === '/app/products') {
+    } else if (pathname.includes('/app/products')) {
       return Sections.Products
-    } else if (pathname === '/app/stores') {
+    } else if (pathname.includes('/app/stores')) {
       return Sections.Stores
     }
     return Sections.Dashboard
@@ -71,7 +37,7 @@ export default function AppMenu() {
     setIsSidebarOpen(false)
   }
   const getSectionColor = (section: Sections) => {
-    return section === currentSection ? 'dark:bg-cyan-700 bg-gray-300' : ''
+    return section === currentSection ? 'dark:bg-cyan-700 bg-gray-300 dark:text-white dark:stroke-white' : ''
   }
 
   const sections = [
@@ -82,45 +48,63 @@ export default function AppMenu() {
   ]
   return (
     <>
-      <header className="dark:text-white flex items-center justify-start my-4 relative">
-        <ThemeProvider theme={getTheme(isSidebarOpen)}>
-          <Drawer
-            onClose={closeSidebar}
-            open={isSidebarOpen}
-            edge
-          >
-            <DrawerHeader
+      <header className="dark:text-white flex items-center justify-start max-w-7xl mx-auto md:my-4 md:px-4 relative">
+        <Drawer
+          onClose={closeSidebar}
+          open={isSidebarOpen}
+          edge
+          theme={{
+            root: {
+              base: !isSidebarOpen ? 'bg-transparent dark:bg-transparent relative' : '',
+              edge: !isSidebarOpen ? 'h-auto w-fit translate-0 flex justify-center' : ''
+            },
+            header: {
+              collapsed: {
+                off: 'hidden',
+                on: 'hidden'
+              },
+              inner: {
+                closeButton: isSidebarOpen ? 'text-amber-700' : 'text-black dark:text-white bg-indigo-100 dark:bg-cyan-700 translate-x-0 static',
+                closeIcon: 'w-6 h-6',
+                titleText: isSidebarOpen ? '' : 'hidden'
+              }
+            },
+            items: {
+              base: `${isSidebarOpen ? 'block' : 'hidden'}`
+            }
+          }}
+        >
+          <DrawerHeader
+            title="Menu"
+            titleIcon={Menu}
+            closeIcon={isSidebarOpen ? ArrowLeft : MenuIcon}
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          />
+          <DrawerItems>
+            <Sidebar
+              aria-label="Default sidebar"
               title="Menu"
-              titleIcon={Menu}
-              closeIcon={isSidebarOpen ? ArrowLeft : MenuIcon}
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            />
-            <DrawerItems>
-              <Sidebar
-                aria-label="Default sidebar"
-                title="Menu"
-              >
-                <SidebarItems>
-                  <SidebarItemGroup>
-                    {sections.map(section => (
-                      <SidebarItem
-                        key={section.name}
-                        href={section.href}
-                        icon={section.icon}
-                        className={getSectionColor(section.name)}
-                        as={Link}
-                        onClick={closeSidebar}
-                      >
-                        {section.name}
-                      </SidebarItem>
-                    ))}
-                  </SidebarItemGroup>
-                </SidebarItems>
-              </Sidebar>
-            </DrawerItems>
-          </Drawer>
-        </ThemeProvider>
-        <h1 className="font-bold ml-10 text-3xl">{currentSection}</h1>
+            >
+              <SidebarItems>
+                <SidebarItemGroup>
+                  {sections.map(section => (
+                    <SidebarItem
+                      key={section.name}
+                      href={section.href}
+                      icon={section.icon}
+                      className={getSectionColor(section.name)}
+                      as={Link}
+                      onClick={closeSidebar}
+                    >
+                      {section.name}
+                    </SidebarItem>
+                  ))}
+                </SidebarItemGroup>
+              </SidebarItems>
+            </Sidebar>
+          </DrawerItems>
+        </Drawer>
+        <h1 className="font-bold  text-3xl">{currentSection}</h1>
       </header>
     </>
   )
