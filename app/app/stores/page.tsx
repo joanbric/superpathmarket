@@ -14,7 +14,7 @@ export default async function StoresPage() {
       <EditStoreModal operationType="create" />
 
       {storesData.length > 0 && (
-        <ListGroup className="gap-8  grid grid-min-cols-5 items-stretch justify-items-center mt-10 p-1">
+        <ListGroup className="gap-8 grid grid-min-cols-5 items-stretch justify-items-center mt-10 p-1">
           {storesData.map(store => (
             <ListItem key={store.id} className='w-full'>
               <Card
