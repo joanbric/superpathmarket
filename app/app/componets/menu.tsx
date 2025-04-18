@@ -46,9 +46,12 @@ export default function AppMenu() {
     { name: Sections.Stores, href: '/app/stores', icon: Store },
     { name: Sections.Products, href: '/app/products', icon: Citrus }
   ]
+  if(pathname.includes('/app/stores/')) {
+    return null
+  }
   return (
     <>
-      <header className="dark:text-white flex items-center justify-start max-w-7xl mx-auto md:my-4 md:px-4 relative">
+      <header className="dark:text-white flex items-center justify-start max-w-7xl mx-auto md:my-4 md:px-4 relative w-full">
         <Drawer
           onClose={closeSidebar}
           open={isSidebarOpen}

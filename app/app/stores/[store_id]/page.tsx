@@ -1,7 +1,10 @@
 import { Sketch, Store } from '@/types'
 import { API_URL } from '@libs/constants'
-import { Card } from 'flowbite-react'
 import Link from 'next/link'
+import { Suspense } from 'react'
+import CanvasWrapper from './CanvasWrapper'
+
+
 export default async function StorePage({ params }: { params: Promise<{ store_id: string }> }) {
   const { store_id } = await params
 
@@ -24,23 +27,16 @@ export default async function StorePage({ params }: { params: Promise<{ store_id
     )
   }
 
-  const {store} = (await res.json()) as { store: Store, sketch: Sketch }
+  const { store, sketch } = (await res.json()) as { store: Store; sketch: Sketch }
 
-  return (
-    <div>
-      {store && (
-        <>
-          <Card className="max-w-[800px] mb-2 md:mb-4 w-full" theme={{root:{children: 'p-3 gap-0 md:p-6 md:gap-4'}}}>
-            <h2 className="dark:text-white font-bold md:mb-4 text-xl md:text-2xl text-black">{store.name}</h2>
+  if (store)
+    return (
+      <>
 
-            <p className="dark:text-gray-300 text-gray-500">
-              <b>Location:</b> {store.address}
-            </p>
-          </Card>
 
-          <Card className="max-w-[800px] rounded-lg w-full" />
-        </>
-      )}
-    </div>
-  )
+        <Suspense fallback={<p>Loading sketch...</p>}>
+          <CanvasWrapper store={store} sketchID={store.id.toString()} nodes={sketch.nodes}  />
+        </Suspense>
+      </>
+    )
 }

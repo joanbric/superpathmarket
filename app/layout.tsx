@@ -67,8 +67,7 @@ export default async function RootLayout({
       className={theme}
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-gray-900`}
-        style={{}}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-gray-900 min-h-screen flex flex-col`}
         draggable={false}
       >
         <ThemeProvider>

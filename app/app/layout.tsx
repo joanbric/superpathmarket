@@ -5,13 +5,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AppMenu />
-      <div className="flex md:ml-10">
-        <main className="duration-300 flex-1 md:py-4 px-4 transition-all text-white dark:text-white w-full max-w-7xl mx-auto">
-          <Suspense fallback={<div>Loading...</div>}>
-            {children}
-          </Suspense>
-        </main>
-      </div>
+      <main className="dark:text-white max-w-7xl mx-auto px-4 text-white transition-all w-full md:py-4 flex-2 flex flex-col">
+        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+      </main>
     </>
   )
 }

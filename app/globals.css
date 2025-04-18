@@ -40,3 +40,8 @@
 
 /* Dark theme variables */
 @custom-variant dark (&:where(.dark, .dark *));
+
+.konvajs-content{
+  position: absolute !important;
+  inset: 0 !important;
+}
