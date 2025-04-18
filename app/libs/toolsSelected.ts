@@ -1,9 +1,9 @@
 export enum TOOLS {
-  SQUARE,
-  CIRCLE,
-  STAR,
-  LINE,
-  TEXT,
-  ERASER,
-  NONE
+  SQUARE='square',
+  CIRCLE='circle',
+  STAR='star',
+  LINE='line',
+  TEXT='text',
+  ERASER='eraser',
+  NONE='none'
 }

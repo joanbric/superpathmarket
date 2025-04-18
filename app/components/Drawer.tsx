@@ -57,52 +57,53 @@ export default function Drawer({
 
   return (
     <>
-      <>
-        <Group
-          x={node.x}
-          y={node.y}
-          onDragMove={editMode ? handleWallDragMove : undefined}
-          onDragEnd={editMode ? handleDragEnd : undefined}
-          draggable={editMode}
-        >
-          {node.name?.includes('rect') && (
-            <Rect
-              onTransform={editMode ? handleTransform : undefined}
-              {...node}
-              x={0}
-              y={0}
-            />
-          )}
-          {node.name?.includes('circle') && (
-            <Circle
-              onTransform={editMode ? handleTransform : undefined}
-              {...node}
-              x={0}
-              y={0}
-            />
-          )}
-          {node.name?.includes('star') && (
-            <Star
-              numPoints={0}
-              innerRadius={0}
-              outerRadius={0}
-              onTransform={editMode ? handleTransform : undefined}
-              {...node}
-              x={0}
-              y={0}
-            />
-          )}
-          {/*   It's the delete button and it should include the delete icon. It is
+      <Group
+        x={node.x}
+        y={node.y}
+        onDragMove={editMode ? handleWallDragMove : undefined}
+        onDragEnd={editMode ? handleDragEnd : undefined}
+        draggable={editMode}
+     
+      >
+        {node.name?.includes('rect') && (
+          <Rect
+            onTransform={editMode ? handleTransform : undefined}
+            {...node}
+            x={0}
+            y={0}
+           
+          />
+        )}
+        {node.name?.includes('circle') && (
+          <Circle
+            onTransform={editMode ? handleTransform : undefined}
+            {...node}
+            x={0}
+            y={0}
+
+          />
+        )}
+        {node.name?.includes('star') && (
+          <Star
+            numPoints={0}
+            innerRadius={0}
+            outerRadius={0}
+            onTransform={editMode ? handleTransform : undefined}
+            {...node}
+            x={0}
+            y={0}
+          />
+        )}
+        {/*   It's the delete button and it should include the delete icon. It is
                placed at the top right corner of Konva Node. */}
-          {/* <Circle
+        {/* <Circle
             zIndex={100}
             x={node.width}
             y={25}
             radius={10}
             fill="red"
           /> */}
-        </Group>
-      </>
+      </Group>
     </>
   )
 }

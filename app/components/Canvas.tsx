@@ -9,8 +9,9 @@ import Drawer from '@components/Drawer'
 import { GRID_SIZE } from '@libs/constants'
 import { AStarFinder, Grid } from 'pathfinding'
 import { useDebouncedCallback } from 'use-debounce'
+import { uuidv4 } from '@/libs/utils'
 
-type Props = {
+export type CanvasProps = {
   sketchID: string
   showGrid?: boolean
   activeTool?: TOOLS
@@ -28,7 +29,7 @@ export default function Canvas({
   nodes = [],
   editMode = false,
   showPath = false
-}: Props) {
+}: CanvasProps) {
   const [scale, setScale] = useState(1)
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
   const [children, setChildren] = useState<Konva.NodeConfig[]>(nodes)
@@ -37,6 +38,8 @@ export default function Canvas({
   const refStage = useRef<Konva.Stage | null>(null)
   const isFirstLoad = useRef(true)
   const [pathToTarget, setPathToTarget] = useState<number[][]>([])
+  const [hasPendingChanges, setHasPendingChanges] = useState(false)
+
 
   const handleCanvasKeyDown = (e: KeyboardEvent) => {
     if (editMode && e.key === 'Delete') {
@@ -47,6 +50,27 @@ export default function Canvas({
     }
   }
 
+  // Save nodes to DB every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (hasPendingChanges) {
+        const res = await fetch('/api/sketch/1', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nodes: children })
+        })
+        if (!res.ok) {
+          console.error('Failed to save nodes to DB')
+          return
+        }
+        const data = await res.json()
+        if(data.success) setHasPendingChanges(false)
+      }
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [hasPendingChanges])
+
+
   // Load nodes from localStorage
   useEffect(() => {
     const storage = localStorage.getItem(sketchID)
@@ -56,14 +80,13 @@ export default function Canvas({
   }, [])
 
   // Save nodes to localStorage in every change in children state
-  if (editMode) {
-    useEffect(() => {
-      if (!isFirstLoad.current) {
-        localStorage.setItem(sketchID, JSON.stringify(children))
-      }
-      isFirstLoad.current = false
-    }, [children])
-  }
+  useEffect(() => {
+    if (!editMode) return
+    if (!isFirstLoad.current) {
+      localStorage.setItem(sketchID, JSON.stringify(children))
+    }
+    isFirstLoad.current = false
+  }, [children, editMode])
 
   useEffect(() => {
     if (!refStage.current) return
@@ -77,13 +100,14 @@ export default function Canvas({
       container.removeEventListener('keydown', handleCanvasKeyDown)
     }
   }, [selectedNode])
-  if (editMode) {
-    useEffect(() => {
-      if (!refTransformer.current) return
-      if (selectedNode) refTransformer.current.attachTo(selectedNode)
-      else refTransformer.current.detach()
-    }, [selectedNode])
-  }
+
+  useEffect(() => {
+    if (!editMode) return
+    if (!refTransformer.current) return
+    if (selectedNode) refTransformer.current.attachTo(selectedNode)
+    else refTransformer.current.detach()
+  }, [selectedNode, editMode])
+
   const handleCanvasClickOnViewMode = () => {}
   const handleCanvasClick = ({ evt, target }: Konva.KonvaEventObject<MouseEvent>) => {
     if (activeTool === TOOLS.NONE && target.name() === 'Stage') {
@@ -94,19 +118,19 @@ export default function Canvas({
       let newChild: Konva.RectConfig | Konva.CircleConfig | null = null
       if (activeTool === TOOLS.SQUARE) {
         newChild = {
-          id: crypto.randomUUID(),
+          id: uuidv4(),
           name: 'rect',
           type: 'Rect',
           x: evt.offsetX,
           y: evt.offsetY,
           width: 100,
           height: 100,
-          fill: 'white'
+          fill: 'blue'
         } as Konva.RectConfig
       }
       if (activeTool === TOOLS.CIRCLE) {
         newChild = {
-          id: crypto.randomUUID(),
+          id: uuidv4(),
           name: 'circle',
           type: 'Circle',
           x: evt.offsetX,
@@ -118,7 +142,7 @@ export default function Canvas({
       }
       if (activeTool === TOOLS.STAR) {
         newChild = {
-          id: crypto.randomUUID(),
+          id: uuidv4(),
           name: 'star',
           type: 'Star',
           x: evt.offsetX,
@@ -190,6 +214,17 @@ export default function Canvas({
 
   const { horizontalLines, vertialLines } = useDrawGrid(canvasSize, GRID_SIZE, scale)
 
+
+
+  /**
+   * This method is used to calculate the distance between two nodes in a canvas.
+   * It's used to update the distances of a node when it's moved.
+   * It takes a nodeId as an argument and returns an array of distances.
+   * The distances are calculated using the A* algorithm.
+   * The method is debounced to prevent too many calculations when the node is moved.
+   * @constant 1000ms delay for a recalculation
+   * @param nodeId The id of the node to calculate the distance for
+   */
   const distanceDebounced = useDebouncedCallback((nodeId: string) => {
     const nodeMoved = children.find(child => child.id === nodeId)
 
@@ -240,6 +275,7 @@ export default function Canvas({
       })
     )
     distanceDebounced(nodeId)
+    setHasPendingChanges(true)
   }
 
   function getPath(pos?: { aPos: { x: number; y: number }; bPos: { x: number; y: number } } | null): number[][] {
@@ -322,11 +358,10 @@ export default function Canvas({
       next = nextNode
     }
 
-
     let nodeA = 0
     let nodeB = 1
     const path = []
-    while(nodeB < order.length){
+    while (nodeB < order.length) {
       const aPos = {
         x: order[nodeA].x as number,
         y: order[nodeA].y as number
@@ -348,11 +383,13 @@ export default function Canvas({
   useEffect(() => {
     if (showPath) drawPath()
   }, [children])
+
   return (
     <Stage
       width={canvasSize.width}
       height={canvasSize.height}
       onClick={editMode ? handleCanvasClick : handleCanvasClickOnViewMode}
+      onTap={editMode ? handleCanvasClick : handleCanvasClickOnViewMode}
       onWheel={handleCanvasWheel}
       name="Stage"
       draggable
@@ -373,7 +410,6 @@ export default function Canvas({
               {...line}
             />
           ))}
-
         {children.map((child, index) => (
           <Drawer
             key={index}
@@ -382,7 +418,6 @@ export default function Canvas({
             editMode={editMode}
           />
         ))}
-
         {pathToTarget.map((position, index) => (
           <Rect
             key={index.toString() + 'path'}
